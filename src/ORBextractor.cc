@@ -944,7 +944,6 @@ void ORBextractor::ComputePyramid(cv::Mat image)
         if(level != 0)
         {
             gpu::resize(mvImagePyramid[level-1], mvImagePyramid[level], sz, 0, 0, INTER_LINEAR);
-
             gpu::copyMakeBorder(mvImagePyramid[level], target, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD,
                            BORDER_REFLECT_101);
         }
