@@ -65,7 +65,8 @@
 #include <vector>
 
 #include "ORBextractor.h"
-
+#include "System.h"
+#include "Sync.h"
 
 using namespace cv;
 using namespace std;
@@ -852,11 +853,11 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint>>& allKeypoint
     } // loop every level
 
     // compute orientations
-    Mat pyramid;
+    CudaSync();
     for (int level = 0; level < nlevels; ++level){
         // mvImagePyramid[level].download(pyramid);
         const cv::cuda::GpuMat &gMat = mvImagePyramid[level];
-        pyramid = Mat(gMat.rows, gMat.cols, gMat.type(), gMat.data, gMat.step);
+        Mat pyramid(gMat.rows, gMat.cols, gMat.type(), gMat.data, gMat.step);
         computeOrientation(pyramid, allKeypoints[level], umax);
     }
 }
@@ -913,6 +914,7 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
         // preprocess the resized image
         // Mat workingMat;
         // mvImagePyramid[level].download(workingMat);
+        CudaSync();
         const cv::cuda::GpuMat &gMat = mvImagePyramid[level];
         Mat workingMat(gMat.rows, gMat.cols, gMat.type(), gMat.data, gMat.step);
 
@@ -957,7 +959,7 @@ void ORBextractor::ComputePyramid(Mat image)
         }
         else
         {
-            cuda::GpuMat gpuImg(image);
+            cuda::GpuMat gpuImg(image, g_defaultAllocator);
             cuda::copyMakeBorder(gpuImg, target, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD,
                            BORDER_REFLECT_101);            
         }

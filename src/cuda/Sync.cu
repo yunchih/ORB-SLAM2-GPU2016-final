@@ -1,6 +1,6 @@
 
-namespace cuda {
-    inline void sync(){
+namespace ORB_SLAM2 {
+    void CudaSync(){
         cudaDeviceSynchronize();
     }
 }

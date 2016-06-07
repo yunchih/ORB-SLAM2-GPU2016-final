@@ -7,8 +7,8 @@ ENDIF()
 
 MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
 
-LIST(APPEND CMAKE_C_FLAGS "-Wall -O3")
-LIST(APPEND CMAKE_CXX_FLAGS "-Wall -O3")
+LIST(APPEND CMAKE_C_FLAGS "-Wall")
+LIST(APPEND CMAKE_CXX_FLAGS "-Wall -pg -g")
 SET(CUDA_HOST_COMPILER /usr/bin/g++)
 LIST(APPEND CUDA_NVCC_FLAGS "--compiler-options -fno-strict-aliasing -use_fast_math")
 
@@ -73,6 +73,7 @@ src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
 src/cuda/Allocator.cu
+src/cuda/Sync.cu
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -103,9 +104,9 @@ ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
 # Examples/Monocular/mono_tum.cc)
 # target_link_libraries(mono_tum ${PROJECT_NAME})
 
-# add_executable(mono_kitti
-# Examples/Monocular/mono_kitti.cc)
-# target_link_libraries(mono_kitti ${PROJECT_NAME})
+add_executable(mono_kitti
+Examples/Monocular/mono_kitti.cc)
+target_link_libraries(mono_kitti ${PROJECT_NAME})
 
 unset(CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 add_subdirectory(gpu)

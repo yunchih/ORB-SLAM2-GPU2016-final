@@ -28,11 +28,14 @@
 #include <opencv2/core.hpp>
 #include <iomanip>
 
-ORB_SLAM2::Allocator gpu_mat_allocator;
-
+namespace ORB_SLAM2 {
+    cv::cuda::GpuMat::Allocator* g_defaultAllocator;
+}
 namespace {
+  ORB_SLAM2::Allocator gpu_mat_allocator;
   void __attribute__((constructor)) init() {
     // Setup GPU Memory Management
+    ORB_SLAM2::g_defaultAllocator = cv::cuda::GpuMat::defaultAllocator();
     cv::cuda::GpuMat::setDefaultAllocator(&gpu_mat_allocator);
   }
 }

@@ -159,6 +159,8 @@ private:
     bool mbDeactivateLocalizationMode;
 };
 
+    extern cv::cuda::GpuMat::Allocator* g_defaultAllocator;
+
 }// namespace ORB_SLAM
 
 #endif // SYSTEM_H
