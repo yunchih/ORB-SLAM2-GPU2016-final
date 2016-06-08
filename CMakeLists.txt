@@ -66,7 +66,6 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
-src/cuda/Allocator.cu
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -97,9 +96,9 @@ ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
 # Examples/Monocular/mono_tum.cc)
 # target_link_libraries(mono_tum ${PROJECT_NAME})
 
-# add_executable(mono_kitti
-# Examples/Monocular/mono_kitti.cc)
-# target_link_libraries(mono_kitti ${PROJECT_NAME})
+ add_executable(mono_kitti
+ Examples/Monocular/mono_kitti.cc)
+ target_link_libraries(mono_kitti ${PROJECT_NAME})
 
 unset(CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 add_subdirectory(gpu gpu)

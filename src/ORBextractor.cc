@@ -63,7 +63,8 @@
 #include <opencv2/cudawarping.hpp>
 #include <opencv2/cudaarithm.hpp>
 #include <vector>
-
+#include <iostream>
+#include <algorithm>
 #include "ORBextractor.h"
 
 
@@ -540,8 +541,8 @@ void ExtractorNode::DivideNode(ExtractorNode &n1, ExtractorNode &n2, ExtractorNo
 
 }
 
-vector<KeyPoint> ORBextractor::DistributeOctTree(const vector<KeyPoint>& vToDistributeKeys, const int minX,
-                                       const int maxX, const int minY, const int maxY, const int N, const int level)
+void ORBextractor::DistributeOctTree(const vector<KeyPoint>& vToDistributeKeys, const int minX,
+                                    const int maxX, const int minY, const int maxY, const int N, const int level, vector<KeyPoint>& vResultKeys)
 {
     // Compute how many initial nodes   
     const int nIni = round(static_cast<float>(maxX-minX)/(maxY-minY));
@@ -743,8 +744,6 @@ vector<KeyPoint> ORBextractor::DistributeOctTree(const vector<KeyPoint>& vToDist
     }
 
     // Retain the best point in each node
-    vector<KeyPoint> vResultKeys;
-    vResultKeys.reserve(nfeatures);
     for(list<ExtractorNode>::iterator lit=lNodes.begin(); lit!=lNodes.end(); lit++)
     {
         vector<KeyPoint> &vNodeKeys = lit->vKeys;
@@ -762,8 +761,6 @@ vector<KeyPoint> ORBextractor::DistributeOctTree(const vector<KeyPoint>& vToDist
 
         vResultKeys.push_back(*pKP);
     }
-
-    return vResultKeys;
 }
 
 void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint>>& allKeypoints)
@@ -772,9 +769,9 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint>>& allKeypoint
 
     const float W = 30;
     
-    Ptr<cuda::FastFeatureDetector> fast_normal   = cuda::FastFeatureDetector::create(iniThFAST); 
-    Ptr<cuda::FastFeatureDetector> fast_fallback = cuda::FastFeatureDetector::create(minThFAST); 
-
+    Ptr<cuda::FastFeatureDetector> fast_normal   = cuda::FastFeatureDetector::create(iniThFAST, false, FastFeatureDetector::TYPE_9_16, 400); 
+    Ptr<cuda::FastFeatureDetector> fast_fallback = cuda::FastFeatureDetector::create(minThFAST, false, FastFeatureDetector::TYPE_9_16, 400); 
+    
     for (int level = 0; level < nlevels; ++level)
     {
         const int minBorderX = EDGE_THRESHOLD-3;
@@ -792,7 +789,7 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint>>& allKeypoint
         const int nRows = height/W;
         const int wCell = ceil(width/nCols);
         const int hCell = ceil(height/nRows);
-
+    
         for(int i=0; i<nRows; i++)
         {
             const float iniY = minBorderY+i*hCell;
@@ -828,15 +825,14 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint>>& allKeypoint
                         vToDistributeKeys.push_back(*vit);
                     }
                 }
-
             }
         }
 
         vector<KeyPoint> & keypoints = allKeypoints[level];
         keypoints.reserve(nfeatures);
 
-        keypoints = DistributeOctTree(vToDistributeKeys, minBorderX, maxBorderX,
-                                      minBorderY, maxBorderY,mnFeaturesPerLevel[level], level);
+        DistributeOctTree(vToDistributeKeys, minBorderX, maxBorderX,
+                            minBorderY, maxBorderY,mnFeaturesPerLevel[level], level, keypoints);
 
         const int scaledPatchSize = PATCH_SIZE*mvScaleFactor[level];
 
