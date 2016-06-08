@@ -199,7 +199,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp,
 
     N = mvKeys.size();
 
-    if(mvKeys.empty())
+    if(N == 0)
         return;
 
     UndistortKeyPoints();

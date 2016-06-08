@@ -25,6 +25,7 @@
 #include <list>
 #include <opencv/cv.h>
 #include <opencv2/core/cuda.hpp>
+#include <opencv2/cudafeatures2d.hpp>
 
 namespace ORB_SLAM2
 {
@@ -88,7 +89,7 @@ public:
 
 protected:
 
-    void ComputePyramid(cv::Mat image);
+    void ComputePyramid(cv::cuda::GpuMat image);
     void ComputeKeyPointsOctTree(std::vector<std::vector<cv::KeyPoint> >& allKeypoints);    
     void DistributeOctTree(const std::vector<cv::KeyPoint>& vToDistributeKeys, const int minX,
                                        const int maxX, const int minY, const int maxY, const int N, const int level, std::vector<cv::KeyPoint>& vResultKeys);
@@ -110,6 +111,8 @@ protected:
     std::vector<float> mvInvScaleFactor;    
     std::vector<float> mvLevelSigma2;
     std::vector<float> mvInvLevelSigma2;
+
+    cv::Ptr<cv::cuda::ORB> orb;
 };
 
 } //namespace ORB_SLAM
