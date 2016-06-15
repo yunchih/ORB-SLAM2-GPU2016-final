@@ -10,6 +10,7 @@
 [![Project Demo](https://thumbnail.jpg)](https://www.youtube.com/watch?v=ID_HERE)
 
 ### Abstract
+Enable GPU optimizations to achieve real time SLAM on the Jetson TX1 embedded computer.
 
 ### Optimization detail
 
@@ -51,9 +52,14 @@ The PC's CPU / GPU is Xeon E3 1231 / GTX 760.
 The statistics were mesured using chosen sequences of the KITTI dataset and live captured images from the 
 camera module on top of TX1.
 
+After enabling GPU optimization, the fps of live camera tracking is increased from 5.98 to 14.42 and frame 
+processing time is reduced from 0.166s to 0.068s !
+
 ![Mean tracking time per frame (lower is better)](img/mean_track_time.png)
 ![Mean and peak fps (fps = 1 / (tracking + camera capture time))](img/FPS.png)
 ![Speedups](img/speedups.png)
+
+
 
 
 ##### Compute Fast with GPU
