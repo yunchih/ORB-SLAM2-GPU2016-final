@@ -20,27 +20,24 @@ Cuda stream and rewrite of some essential algorithms, such as Fast and ORB.
 These features allow us to fully exploit more Cuda APIs, such as Unified Memory.
 
 ##### Feature extraction reimplemented
-In the original implementation of `ORB_SLAM2` there are several execution hotspots in the feature
-detection and extraction algorithms. Those including but not limited to `FAST corner detection`,
-`Gaussian filter` and `ORB feature extraction`.
-
-In `ORB_SLAM2`'s implementation, an image is divided into many small tiles and `FAST` is invoked on each
-tile one or two times in order to achieve high accuracy. The algorithm was effective but not efficient.
-Hence we implemented a slightly modified version of the above algorithm in CUDA and parallelized the work
+There are several execution hotspots in the original `ORB_SLAM2`, including but not limited to
+procedures like `FAST corner detection`, `Gaussian filter` and `ORB feature extraction`.
+For example, in their `ORB feature extraction` implementation, an image is divided into many small tiles
+and `FAST` is invoked on each tile one or two times in order to achieve high accuracy.
+The algorithm was effective yet inefficient.
+Hence we implemented a slightly modified version of it in CUDA and parallelized the work
 of each tile.
-
-We used openCV's CUDA enabled Gaussian filter and moved the work from CPU to GPU.
 
 `ORB feature extraction` is also a costly but parallelizable procedure, so it's implemented with CUDA, too.
 
 ##### Overlap CPU and GPU execution
 However, there are still some irregular code segments that cannot be parallelized. So our next goal is to 
-maximize the overlap of CPU and GPU work. Ideally if a CPU work is completed before a GPU kernel ends then
-the CPU work would be "free", but many CPU work have data dependencies on other GPU results, so the CPU / GPU
-work scheduling has to be done wisely.
-With the help of many profiles (thanks to NVVP), we've figured out a pretty good scheduling scheme
-to pipeline CPU and GPU work. The result is that GPU is kept as busy as possible while CPU can overlap many
-of it's execution time with GPU.
+maximize CPU/GPU overlap. Ideally if a CPU work is completed before a GPU kernel ends, then
+the CPU work would be considered "free"; unfortunately, many CPU work have data dependencies on other GPU results,
+thus CPU/GPU work scheduling must be done wisely.
+With the help of many profilings (thanks to NVVP), we've figured out a pretty good scheduling scheme
+to pipeline CPU and GPU work, such that GPU is kept as busy as possible while CPU can overlap many
+of it's execution with GPU.
 
 ![Execution timeline](img/timeline.png)
 
@@ -48,7 +45,7 @@ The purple bars on the row "Default domain" indicates CPU work and the "Compute"
 
 ##### Results
 Following are some charts of the speedups we achieved on an ordinary PC and on a jetson TX1.
-The PC's CPU / GPU is Xeon E3 1231 / GTX 760.
+The PC's CPU/GPU is Xeon E3 1231 / GTX 760.
 The statistics were mesured using chosen sequences of the KITTI dataset and live captured images from the 
 camera module on top of TX1.
 
