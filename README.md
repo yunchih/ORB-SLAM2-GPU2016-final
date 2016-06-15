@@ -44,7 +44,7 @@ of it's execution with GPU.
 The purple bars on the row "Default domain" indicates CPU work and the "Compute" row indicates GPU work.
 
 ##### Results
-Following are some charts of the speedups we achieved on an ordinary PC and on a jetson TX1.
+Following are some charts of the speedups we achieved on an ordinary PC and on a Jetson TX1.
 The PC's CPU/GPU is Xeon E3 1231 / GTX 760.
 The statistics were mesured using chosen sequences of the KITTI dataset and live captured images from the 
 camera module on top of TX1.
@@ -55,32 +55,3 @@ processing time is reduced from 0.166s to 0.068s !
 ![Mean tracking time per frame (lower is better)](img/mean_track_time.png)
 ![Mean and peak fps (fps = 1 / (tracking + camera capture time))](img/FPS.png)
 ![Speedups](img/speedups.png)
-
-
-
-
-##### Compute Fast with GPU
-The `cv::FAST` function is the main bottleneck in the original implementation.  It is invoked in
-every grid of every level of pyramid of every frame to extract their keypoints.  The cost is doubled
-if the given grid is of low contrast and `cv::FAST` has to be invoked once more with a lower threshold.
-We reduce the inner level of every level by extracting keypoints of entire frame in one GPU kernel.  In
-addition, we enhance data locality by including the low-contrast fallback in the same kernel.
-
-##### Software Pipelining
-We use Cuda stream to asynchronously copy memory & launch kernel to hide their latencies, respectively.
-In addition, kernel of subsequent level is launched asynchronously right after current level, achieving
-the pipelining effect analogous to that of hardware.  The technique is used in both extracting
-FAST keypoints and computing ORB descriptors.
-
-##### Unified Memory
-We use Cuda Unified Memory, exploiting the unique unified physical memory of Nvidia Tegra, to save host-device
-memory copy.
-
-##### Save memory allocation/free
-In the original implementation, some frequently invoked functions locally allocate/free memory in every invocation.
-We save such overhead by allocating memory once and free it when it will no longer be used.
-
-##### Transform still more procedures into GPU
-Functions such as `resize`, `copyMakeBorder`, `Gaussian filter` are directly replaced by the their GPU counterparts
-in OpenCV.  Functions such as `compute_IC_Angle`, `compute_ORB_Descriptor` are adopted from OpenCV's
-implementation to fit our needs.
