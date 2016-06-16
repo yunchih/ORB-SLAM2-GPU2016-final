@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>ORB-SLAM2 GPU optimization by yunchih</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">ORB-SLAM2 GPU optimization</h1>
+      <h2 class="project-tagline">GPGPU 2016 Final Project</h2>
+      <a href="https://github.com/yunchih/GPU2016-final" class="btn">View on GitHub</a>
+      <a href="https://github.com/yunchih/GPU2016-final/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/yunchih/GPU2016-final/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h4>
+<a id="video" class="anchor" href="#video" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Video</h4>
+
+<p><a href="https://www.youtube.com/watch?v=Sngog64Y0pw"><img src="http://img.youtube.com/vi/Sngog64Y0pw/0.jpg" alt="Project Proposal"></a>
+<a href="https://www.youtube.com/watch?v=p77hLLRfBGQ"><img src="http://img.youtube.com/vi/p77hLLRfBGQ/0.jpg" alt="Project Demo"></a></p>
+
+<h4>
+<a id="slides" class="anchor" href="#slides" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Slides</h4>
+
+<p><a href="slides/index.html">slides</a></p>
+
+<h3>
+<a id="abstract" class="anchor" href="#abstract" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Abstract</h3>
+
+<p>Enable GPU optimizations to achieve real time SLAM on the Jetson TX1 embedded computer. <a href="https://github.com/raulmur/ORB_SLAM2">ORB_SLAM2</a></p>
+
+<h3>
+<a id="optimization-details" class="anchor" href="#optimization-details" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Optimization details</h3>
+
+<h4>
+<a id="switch-from-opencv-24-to-opencv-31" class="anchor" href="#switch-from-opencv-24-to-opencv-31" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Switch from OpenCV 2.4 to OpenCV 3.1</h4>
+
+<p>OpenCV 3.1 introduces several features helpful to this project: custom memory allocator, 
+Cuda stream and rewrite of some essential algorithms, such as Fast and ORB.
+These features allow us to fully exploit more Cuda APIs, such as Unified Memory.</p>
+
+<h4>
+<a id="feature-extraction-reimplemented" class="anchor" href="#feature-extraction-reimplemented" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Feature extraction reimplemented</h4>
+
+<p>There are several execution hotspots in the original <code>ORB_SLAM2</code>, including but not limited to
+procedures like <code>FAST corner detection</code>, <code>Gaussian filter</code> and <code>ORB feature extraction</code>.
+For example, in their <code>ORB feature extraction</code> implementation, an image is divided into many small tiles
+and <code>FAST</code> is invoked on each tile one or two times in order to achieve high accuracy.
+The algorithm was effective yet inefficient.
+Hence we implemented a slightly modified version of it in CUDA and parallelized the work
+of each tile.</p>
+
+<p><code>ORB feature extraction</code> is also a costly but parallelizable procedure, so it's implemented with CUDA, too.</p>
+
+<h4>
+<a id="overlap-cpu-and-gpu-execution" class="anchor" href="#overlap-cpu-and-gpu-execution" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overlap CPU and GPU execution</h4>
+
+<p>However, there are still some irregular code segments that cannot be parallelized. So our next goal is to 
+maximize CPU/GPU overlap. Ideally if a CPU work is completed before a GPU kernel ends, then
+the CPU work would be considered "free"; unfortunately, many CPU work have data dependencies on other GPU results,
+thus CPU/GPU work scheduling must be done wisely.
+With the help of many profilings (thanks to NVVP), we've figured out a pretty good scheduling scheme
+to pipeline CPU and GPU work, such that GPU is kept as busy as possible while CPU can overlap many
+of it's execution with GPU.</p>
+
+<p><img src="img/timeline.png" alt="Execution timeline"></p>
+
+<p>The purple bars on the row "Default domain" indicates CPU work and the "Compute" row indicates GPU work.</p>
+
+<h4>
+<a id="results" class="anchor" href="#results" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Results</h4>
+
+<p>Following are some charts of the speedups we achieved on an ordinary PC and on a Jetson TX1.
+The PC's CPU/GPU is Xeon E3 1231 / GTX 760.
+The statistics were mesured using chosen sequences of the KITTI dataset and live captured images from the 
+camera module on top of TX1.</p>
+
+<p>After enabling GPU optimization, the fps of live camera tracking is increased from 5.98 to 14.42 and frame 
+processing time is reduced from 0.166s to 0.068s !</p>
+
+<p><img src="img/mean_track_time.png" alt="Mean tracking time per frame (lower is better)">
+<img src="img/FPS.png" alt="Mean and peak fps (fps = 1 / (tracking + camera capture time))">
+<img src="img/speedups.png" alt="Speedups"></p>
+
+<h3>
+<a id="contacts" class="anchor" href="#contacts" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contacts</h3>
+
+<ul>
+<li>B03902035 黃兆緯 <a href="mailto:b03902035@ntu.edu.tw">b03902035@ntu.edu.tw</a>
+</li>
+<li>B03902074 陳耘志 <a href="mailto:b03902074@ntu.edu.tw">b03902074@ntu.edu.tw</a>
+</li>
+<li>B03902082 江懿友 <a href="mailto:b03902082@ntu.edu.tw">b03902082@ntu.edu.tw</a>
+</li>
+</ul>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/yunchih/GPU2016-final">ORB-SLAM2 GPU optimization</a> is maintained by <a href="https://github.com/yunchih">yunchih</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
