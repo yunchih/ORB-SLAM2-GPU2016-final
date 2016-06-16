@@ -56,3 +56,8 @@ processing time is reduced from 0.166s to 0.068s !
 ![Mean tracking time per frame (lower is better)](img/mean_track_time.png)
 ![Mean and peak fps (fps = 1 / (tracking + camera capture time))](img/FPS.png)
 ![Speedups](img/speedups.png)
+
+### Contacts
+B03902035 黃兆緯 <b03902035@ntu.edu.tw>
+B03902074 陳耘志 <b03902074@ntu.edu.tw>
+B03902082 江懿友 <b03902082@ntu.edu.tw>
