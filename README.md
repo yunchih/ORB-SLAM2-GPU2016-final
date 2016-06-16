@@ -1,5 +1,5 @@
 # ORB-SLAM2 GPU optimization
-## GPUGPU 2016 Final Project
+## GPGPU 2016 Final Project
 
 ### Introduction
 
@@ -11,7 +11,7 @@
 [slides](slides/index.html)
 
 ### Abstract
-Enable GPU optimizations to achieve real time SLAM on the Jetson TX1 embedded computer.
+Enable GPU optimizations to achieve real time SLAM on the Jetson TX1 embedded computer. [ORB\_SLAM2](https://github.com/raulmur/ORB_SLAM2)
 
 ### Optimization details
 
@@ -58,6 +58,6 @@ processing time is reduced from 0.166s to 0.068s !
 ![Speedups](img/speedups.png)
 
 ### Contacts
-B03902035 黃兆緯 <b03902035@ntu.edu.tw>
-B03902074 陳耘志 <b03902074@ntu.edu.tw>
-B03902082 江懿友 <b03902082@ntu.edu.tw>
+- B03902035 黃兆緯 <b03902035@ntu.edu.tw>
+- B03902074 陳耘志 <b03902074@ntu.edu.tw>
+- B03902082 江懿友 <b03902082@ntu.edu.tw>
