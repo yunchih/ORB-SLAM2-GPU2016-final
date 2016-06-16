@@ -1,25 +1,26 @@
 # ORB-SLAM2 GPU optimization
 ## GPUGPU 2016 Final Project
 
-
 ### Introduction
 
-### Video
-
+#### Video
 [![Project Proposal](https://thumbnail.jpg)](https://www.youtube.com/watch?v=ID_HERE)
 [![Project Demo](https://thumbnail.jpg)](https://www.youtube.com/watch?v=ID_HERE)
+
+#### Slides
+[slides](slides/index.html)
 
 ### Abstract
 Enable GPU optimizations to achieve real time SLAM on the Jetson TX1 embedded computer.
 
-### Optimization detail
+### Optimization details
 
-##### Switch from OpenCV 2.4 to OpenCV 3.1
+#### Switch from OpenCV 2.4 to OpenCV 3.1
 OpenCV 3.1 introduces several features helpful to this project: custom memory allocator, 
 Cuda stream and rewrite of some essential algorithms, such as Fast and ORB.
 These features allow us to fully exploit more Cuda APIs, such as Unified Memory.
 
-##### Feature extraction reimplemented
+#### Feature extraction reimplemented
 There are several execution hotspots in the original `ORB_SLAM2`, including but not limited to
 procedures like `FAST corner detection`, `Gaussian filter` and `ORB feature extraction`.
 For example, in their `ORB feature extraction` implementation, an image is divided into many small tiles
@@ -30,7 +31,7 @@ of each tile.
 
 `ORB feature extraction` is also a costly but parallelizable procedure, so it's implemented with CUDA, too.
 
-##### Overlap CPU and GPU execution
+#### Overlap CPU and GPU execution
 However, there are still some irregular code segments that cannot be parallelized. So our next goal is to 
 maximize CPU/GPU overlap. Ideally if a CPU work is completed before a GPU kernel ends, then
 the CPU work would be considered "free"; unfortunately, many CPU work have data dependencies on other GPU results,
@@ -43,7 +44,7 @@ of it's execution with GPU.
 
 The purple bars on the row "Default domain" indicates CPU work and the "Compute" row indicates GPU work.
 
-##### Results
+#### Results
 Following are some charts of the speedups we achieved on an ordinary PC and on a Jetson TX1.
 The PC's CPU/GPU is Xeon E3 1231 / GTX 760.
 The statistics were mesured using chosen sequences of the KITTI dataset and live captured images from the 

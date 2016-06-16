@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>GPU enabled ORB_SLAM2</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+                          <section>
+                            <h2>ORB_SLAM2</h2>
+                          </section>
+
+                          <section>
+                            <section>
+                              <h2>Abstract</h2>
+                            </section>
+                            <section>
+                              <p>
+                                Enable GPU optimizations to achieve real time SLAM on the Jetson TX1 embedded computer.
+                              </p>
+                            </section>
+                            <section>
+                              <p>SLAM = Simultaneous Localization And Mapping</p>
+                              <p>TX1 devboard:</p>
+                              <img src="img/jetson-tx1-devkit-thumb.jpg">
+                            </section>
+                          </section>
+
+                          <section>
+                            <section>
+                              <h2>Main hotspots</h2>
+                              <p>Corner detection on images</p>
+                              <p>Feature extraction on images</p>
+                            </section>
+                            <section>
+                              <h3>What we've done</h3>
+                              <p>Reimplement "Fast corner detection" and "ORB feature extraction" with CUDA</p>
+                              <p>Pipeline GPU kernels as much as possible</p>
+                              <p>Overlap unparallelizable CPU work and GPU work as much as possible</p>
+                            </section>
+                            <section>
+                              <img class="stretch" src="img/timeline.png">
+                            </section>
+                          </section>
+
+                          <section>
+                            <section>
+                              <h2>Results</h2>
+                            </section>
+                            <section>
+                              <h3>Platforms:</h3>
+                              <p>PC (Xeon E3 1231 / GTX 760 Kepler)</p>
+                              <p>TX1 devboard (ARM A57 / 256 core Maxwell)</p>
+                            </section>
+                            <section>
+                              <h3>Mean tracking time per frame</h3>
+                              <img src="img/mean_track_time.png">
+                            </section>
+                            <section>
+                              <h3>Mean and peak fps</h3>
+                              <img src="img/FPS.png">
+                            </section>
+                            <section>
+                              <h3>Speedups</h3>
+                              <img src="img/speedups.png">
+                            </section>
+                          </section>
+                          <section>
+                            <section>
+                              <h2>End</h2>
+                            </section>
+                          </section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				history: true,
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
