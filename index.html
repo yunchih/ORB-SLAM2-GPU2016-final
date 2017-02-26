@@ -50,20 +50,18 @@
 
 <p>OpenCV 3.1 introduces several features helpful to this project: custom memory allocator, 
 Cuda stream and rewrite of some essential algorithms, such as Fast and ORB.
-These features allow us to fully exploit more Cuda APIs, such as Unified Memory.</p>
+These features allow us to fully utilize more Cuda APIs, such as Unified Memory.</p>
 
 <h3>
 <a id="feature-extraction-reimplemented" class="anchor" href="#feature-extraction-reimplemented" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Feature extraction reimplemented</h3>
 
 <p>There are several execution hotspots in the original <code>ORB_SLAM2</code>, including but not limited to
 procedures like <code>FAST corner detection</code>, <code>Gaussian filter</code> and <code>ORB feature extraction</code>.
-For example, in their <code>ORB feature extraction</code> implementation, an image is divided into many small tiles
+For example, in their <code>Key Point extraction</code> procedure, an image is divided into many small tiles
 and <code>FAST</code> is invoked on each tile one or two times in order to achieve high accuracy.
 The algorithm was effective yet inefficient.
 Hence we implemented a slightly modified version of it in CUDA and parallelized the work
-of each tile.</p>
-
-<p><code>ORB feature extraction</code> is also a costly but parallelizable procedure, so it's implemented with CUDA, too.</p>
+of each tile. <code>ORB feature extraction</code> is also a costly but parallelizable procedure, so it's implemented with CUDA, too.</p>
 
 <h3>
 <a id="overlap-cpu-and-gpu-execution" class="anchor" href="#overlap-cpu-and-gpu-execution" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overlap CPU and GPU execution</h3>
@@ -72,7 +70,7 @@ of each tile.</p>
 maximize CPU/GPU overlap. Ideally if a CPU work is completed before a GPU kernel ends, then
 the CPU work would be considered "free"; unfortunately, many CPU work have data dependencies on other GPU results,
 thus CPU/GPU work scheduling must be done wisely.
-With the help of many profilings (thanks to NVVP), we've figured out a pretty good scheduling scheme
+With the help of many profiles (thanks to NVVP), we've figured out a pretty good scheduling scheme
 to pipeline CPU and GPU work, such that GPU is kept as busy as possible while CPU can overlap many
 of it's execution with GPU.</p>
 
