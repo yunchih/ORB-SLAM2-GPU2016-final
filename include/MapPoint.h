@@ -78,7 +78,7 @@ public:
 
     float GetMinDistanceInvariance();
     float GetMaxDistanceInvariance();
-    int PredictScale(const float &currentDist, const float &logScaleFactor);
+    int PredictScale(const float &currentDist, const float &logScaleFactor, const int mnScaleLevel);
 
 public:
     long unsigned int mnId;
